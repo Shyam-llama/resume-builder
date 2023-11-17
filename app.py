@@ -173,7 +173,7 @@ def set_cell_background(cell, fill):
     cell._tc.get_or_add_tcPr().append(shading_elm)
 
 # Function for creating a document from a JSON-like structure
-def create_doc_from_json1(json_data, filename):
+def create_doc_from_json_template1(json_data, filename):
     doc = Document()
     
     # Set the page margins
@@ -257,7 +257,7 @@ def set_space_after2(paragraph, space):
     paragraph_format.space_after = Inches(space)
 
 # Function for creating a document from a JSON-like structure
-def create_doc_from_json2(json_data, filename):
+def create_doc_from_json_template2(json_data, filename):
     # Create a new Document
     doc = Document()
     
@@ -406,7 +406,7 @@ def create_two_column_table(doc, json_data):
     return table
 
 # Function for creating a document from a JSON-like structure
-def create_doc_from_json3(json_data, filename):
+def create_doc_from_json_template3(json_data, filename):
     doc = Document()
     # Set the page margins
     section = doc.sections[0]
