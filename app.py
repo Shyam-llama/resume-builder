@@ -433,32 +433,32 @@ def download_docx(doc, filename):
 # Streamlit UI
 st.title('Resume Parser and Builder')
 
-uploaded_file = st.file_uploader("Upload your resume here", type="pdf")
-template_option = st.selectbox("Select Resume Template:", ("KGP format", "Simple format", "2 Column format"))
+uploaded_files = st.file_uploader("Upload your resumes here", type=["pdf", "doc", "docx", "txt"], accept_multiple_files=True)
+# template_option = st.selectbox("Select Resume Template:", ("KGP format", "Simple format", "2 Column format"))
 
+if uploaded_files:
+    for uploaded_file in uploaded_files:
+        with st.spinner(f'Parsing resume: {uploaded_file.name}...'):
+            # Convert uploaded file to text
+            resume_text = convert_file_to_text(uploaded_file)
 
-if uploaded_file is not None:
-    with st.spinner('Parsing resume...'):
-        
-        # Convert uploaded PDF file to text
-        text1 = convert_files_to_text(uploaded_file)
-        text = truncate_text_by_words(text1)
+            # Parse resume
+            start_time = time.time()
+            json_resume = await fetch_and_process(resume_text, systems)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            st.write(f"Execution time for {uploaded_file.name}: {elapsed_time:.2f} seconds")
+            # st.json(json_resume)
 
-        #parse resume
-        start_time = time.time()
-        json_resume = await fetch_and_process(text,systems)
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"Execution time: {elapsed_time:.2f} seconds")
-        print(json_resume)
-      
-        # Create DOC based on selected template
-        if template_option == "KGP format":
-            create_doc_from_json_template1(json_resume, doc)
-        elif template_option == "Simple format":
-            create_doc_from_json_template2(json_resume, doc)
-        else:
-            create_doc_from_json_template3(json_resume, doc)
-        
-        # Download link for the resume
-        download_docx(doc, f"Generated_Resume_{template_option}.docx")
+            # Create DOC based on each template
+            doc1 = Document()
+            create_doc_from_json_template1(json_resume, doc1)
+            download_docx(doc1, f"Generated_Resume_KGP_{uploaded_file.name}.docx")
+
+            doc2 = Document()
+            create_doc_from_json_template2(json_resume, doc2)
+            download_docx(doc2, f"Generated_Resume_Simple_{uploaded_file.name}.docx")
+
+            doc3 = Document()
+            create_doc_from_json_template3(json_resume, doc3)
+            download_docx(doc3, f"Generated_Resume_2Column_{uploaded_file.name}.docx")
