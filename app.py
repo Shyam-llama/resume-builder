@@ -429,6 +429,14 @@ def download_docx(doc, filename):
     docx_bytes = docx_bytes.getvalue()
     st.download_button(label='Download Resume', data=docx_bytes, file_name=filename, mime='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
+async def process_file(uploaded_file, systems):
+    # Convert uploaded file to text
+    resume_text = convert_file_to_text(uploaded_file)
+    resume_text = truncate_text_by_words(resume_text)
+    # Parse resume
+    json_resume = await fetch_and_process(resume_text, systems)
+    return uploaded_file.name, json_resume
+
 
 # Streamlit UI
 st.title('Resume Parser and Builder')
@@ -437,17 +445,15 @@ uploaded_files = st.file_uploader("Upload your resumes here", type=["pdf", "doc"
 # template_option = st.selectbox("Select Resume Template:", ("KGP format", "Simple format", "2 Column format"))
 
 if uploaded_files:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     for uploaded_file in uploaded_files:
         with st.spinner(f'Parsing resume: {uploaded_file.name}...'):
-            # Convert uploaded file to text
-            resume_text = convert_file_to_text(uploaded_file)
-
-            # Parse resume
             start_time = time.time()
-            json_resume = await fetch_and_process(resume_text, systems)
+            file_name, json_resume = loop.run_until_complete(process_file(uploaded_file, systems))
             end_time = time.time()
             elapsed_time = end_time - start_time
-            st.write(f"Execution time for {uploaded_file.name}: {elapsed_time:.2f} seconds")
+            st.write(f"Execution time for {file_name}: {elapsed_time:.2f} seconds")
 
             # Create and download resume for each template
             doc1_filename = f"Generated_Resume_KGP_{uploaded_file.name}.docx"
