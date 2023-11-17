@@ -448,17 +448,17 @@ if uploaded_files:
             end_time = time.time()
             elapsed_time = end_time - start_time
             st.write(f"Execution time for {uploaded_file.name}: {elapsed_time:.2f} seconds")
-            # st.json(json_resume)
 
-            # Create DOC based on each template
-            doc1 = Document()
-            create_doc_from_json_template1(json_resume, doc1)
-            download_docx(doc1, f"Generated_Resume_KGP_{uploaded_file.name}.docx")
+            # Create and download resume for each template
+            doc1_filename = f"Generated_Resume_KGP_{uploaded_file.name}.docx"
+            create_doc_from_json_template1(json_resume, doc1_filename)
+            download_docx(doc1_filename, doc1_filename)
 
-            doc2 = Document()
-            create_doc_from_json_template2(json_resume, doc2)
-            download_docx(doc2, f"Generated_Resume_Simple_{uploaded_file.name}.docx")
+            doc2_filename = f"Generated_Resume_Simple_{uploaded_file.name}.docx"
+            create_doc_from_json_template2(json_resume, doc2_filename)
+            download_docx(doc2_filename, doc2_filename)
 
-            doc3 = Document()
-            create_doc_from_json_template3(json_resume, doc3)
-            download_docx(doc3, f"Generated_Resume_2Column_{uploaded_file.name}.docx")
+            doc3_filename = f"Generated_Resume_2Column_{uploaded_file.name}.docx"
+            create_doc_from_json_template3(json_resume, doc3_filename)
+            download_docx(doc3_filename, doc3_filename)
+
