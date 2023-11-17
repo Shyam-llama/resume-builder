@@ -17,6 +17,7 @@ import pandas as pd
 
 
 api_key = st.secrets.api_key
+API_KEY = api_key
 openai.api_key = api_key
 
 
@@ -119,6 +120,8 @@ system3='''You are an excellent NLP engineer, skilled talent recruiter and data 
         If not a resume then all the key's value should be null.
         Step-2:
         Only return the parsed JSON format resume, nothing else. '''
+
+systems = [system1, system2, system3]
 
 
 async def async_openai_request(session, resumetext, system):
@@ -419,28 +422,40 @@ def create_doc_from_json3(json_data, filename):
     doc.save(filename)
 
 
+# Function to download a docx file
+def download_docx(doc, filename):
+    docx_bytes = BytesIO()
+    doc.save(docx_bytes)
+    docx_bytes = docx_bytes.getvalue()
+    st.download_button(label='Download Resume', data=docx_bytes, file_name=filename, mime='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
 
 # Streamlit UI
-st.title('Resume Parser and Creator')
+st.title('Resume Parser and Builder')
 
-uploaded_file = st.file_uploader("Upload your resume in PDF format", type="pdf")
-template_option = st.selectbox("Select Resume Template", ("Template 1", "Template 2", "Template 3"))
+uploaded_file = st.file_uploader("Upload your resume here", type="pdf")
+template_option = st.selectbox("Select Resume Template:", ("KGP format", "Simple format", "2 Column format"))
 
 
 if uploaded_file is not None:
     with st.spinner('Parsing resume...'):
+        
         # Convert uploaded PDF file to text
         text1 = convert_files_to_text(uploaded_file)
         text = truncate_text_by_words(text1)
-        systems = ['system1', 'system2', 'system3']
-        # Assume this function parses the text and returns JSON data
-        json_resume = parse_resume(text)  # Replace with your actual parsing logic
+
+        #parse resume
+        start_time = time.time()
+        json_resume = await fetch_and_process(text,systems)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"Execution time: {elapsed_time:.2f} seconds")
+        print(json_resume)
       
-        # Create DOCX based on selected template
-        doc = Document()
-        if template_option == "Template 1":
+        # Create DOC based on selected template
+        if template_option == "KGP format":
             create_doc_from_json_template1(json_resume, doc)
-        elif template_option == "Template 2":
+        elif template_option == "Simple format":
             create_doc_from_json_template2(json_resume, doc)
         else:
             create_doc_from_json_template3(json_resume, doc)
