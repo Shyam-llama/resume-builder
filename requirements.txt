@@ -4,4 +4,3 @@ pdfminer.six
 openai
 aiohttp
 pandas
-pdfminer
