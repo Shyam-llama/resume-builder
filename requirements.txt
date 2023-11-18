@@ -1,6 +1,6 @@
 streamlit
 python-docx
-pdfminer.six==<20221105>
+pdfminer.six
 openai
 aiohttp
 pandas
